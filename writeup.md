@@ -14,10 +14,6 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./examples/visualization.jpg "Visualization"
-[image2]: ./examples/grayscale.jpg "Grayscaling"
-[image3]: ./examples/random_noise.jpg "Random Noise"
-
 [data_histogram_for_class]: ./image/data_histogram_for_class.png "Data Histogram for Class"
 
 [balancing_data]: ./image/balancing_data.png "Balancing Data"
@@ -31,6 +27,10 @@ The goals / steps of this project are the following:
 [image_augmentation]: ./image/image_augmentation.png "Image Augmentation"
 
 [learning_rate]: ./image/learning_rate.png "Learning Rate"
+
+[recall_precision_train]: ./image/recall_precision_train.png "Recall and Precision for Training Set"
+[recall_precision_valid]: ./image/recall_precision_valid.png "Recall and Precision for Validation Set"
+[recall_precision_test]: ./image/recall_precision_test.png "Recall and Precision for Test Set"
 
 [other_image_01]: ./external_image/01.jpg "Other Traffic Sign 1"
 [other_image_02]: ./external_image/02.jpg "Other Traffic Sign 2"
@@ -63,9 +63,9 @@ The goals / steps of this project are the following:
 
 ## Data Set Summary & Exploration
 
-### 1. Basic summary of the data set.
+### 1. Dataset Summary.
 
-The numpy library is used to calculate summary statistics of the traffic signs data set:
+The numpy library is used to calculate the summary statistics of the traffic signs data set. The code is located in `Traffic_Sign_Classifier.ipynb Cell [2] - [3]`.
 
 |Item                          |Description	| 
 |:-----------------------------|:----------:| 
@@ -76,7 +76,7 @@ The numpy library is used to calculate summary statistics of the traffic signs d
 |Range of image data           |0 - 255     | 
 |Number of classes             |43          | 
 
-The following show the different classes of the German traffic signs.
+The following table shows the different classes of the German traffic signs.
 
 |Class index|Class name                                        | 
 |:---------:|:-------------------------------------------------| 
@@ -124,9 +124,9 @@ The following show the different classes of the German traffic signs.
 |42         |End of no passing                                 |
 |43         |End of no passing by vehicles over 3.5 metric tons|
 
-### 2. Exploratory visualization of the dataset.
+### 2. Exploratory Visualization.
 
-Here is an exploratory visualization of the data set.
+Here is an exploratory visualization of the data set. It is implemented in `Traffic_Sign_Classifier.ipynb Cell [4]`.
 
 It is a bar chart showing how different classese are disbributed in the training data, the validation data, and the testing data respectively.
 
@@ -134,7 +134,7 @@ It is a bar chart showing how different classese are disbributed in the training
 
 ## Design and Test a Model Architecture
 
-### 1. Image Data Preprocssing
+### 1. Preprocessing
 
 
 #### 1. Balancing data, converting to grayscale and normalization
@@ -143,12 +143,13 @@ It is a bar chart showing how different classese are disbributed in the training
 The precessing is dividied into 3 step.
 1. Balancing data.
 
-The training set is not well balanced for different classes. Therefore, duplicate the training samples for each class randomly so all classes have the same numbers of samples. Different sets of duplicates are computed for each epoch of the training. After the copying, many classes would have the same sample. To overcome this problem, we would perform image augmentation for each set later.
+The training set is not well balanced for different classes. Therefore, duplicate the training samples for each class randomly to make sure that all classes have the same numbers of samples. Different sets of duplicates are computed for each epoch of the training. After the copying, many classes would have the same sample. To overcome this problem, we would perform image augmentation for each set later. Balancing data is implemented in `balanceAndShuffleData() in Traffic_Sign_Classifier.ipynb Cell [7]`.
 ![balancing_data]
 
 2. Converting to grayscale.
 
-Convert to grayscale and make the data between 0 and 1. They are used for initial data.
+Convert the color image to grayscale image and make the data between 0 and 1. They are used for the initial data. It is implemented in `convert_to_grayscale() in Traffic_Sign_Classifier.ipynb Cell [8]`.
+
 ||
 |:------:|
 |Original|
@@ -158,7 +159,7 @@ Convert to grayscale and make the data between 0 and 1. They are used for initia
 
 3. Normalization.
 
-Normalize the result so that the 0 is mapped to the minimum value and 255 is mapped to the maximum value for each image. They are used right before the training or evaluation.
+Normalize the result so that the 0 is mapped to the minimum value and 1 is mapped to the maximum value for each image. Normalization is done right before the training or evaluation. Normalization is implemented in `normalize() in Traffic_Sign_Classifier.ipynb Cell [9]`.
 ||
 |:------:|
 |Normalizing|
@@ -167,7 +168,7 @@ Normalize the result so that the 0 is mapped to the minimum value and 255 is map
 #### 2. Image augmentation
 
 Additional data would be generated because the following reasons.
-1. The training set is not well balanced for different classes. Image augmentation is necessary to make sure that there are no the same.
+1. The training set is not well balanced for different classes. Image augmentation is necessary to make sure that there are no the same image.
 2. It can decrease the change of over-fitting.
 3. More data can be used to train the model.
 
@@ -177,22 +178,22 @@ Image Augmentation is done using different ways:
 3. Random scale
 4. Random translation
 
-The following figure illustrates the same image applying all the previous operations randomly.
+The following figure illustrates applying all the previous operations randomly on the same image. Image augmentation is implemented in `normalize() in Traffic_Sign_Classifier.ipynb Cell [11] - [15]`.
 ![image_augmentation]
 
-#### 2. Model architecture.
+### 2. Model Architecture
 
-My model consists of the following layers:
+My model consists of the following layers. It is defined in `TrafficSignClassifier() in Traffic_Sign_Classifier.ipynb Cell [17]`.
 
 |Layer             |Description                 |Output       |Parameter|
 |:-----------------|:---------------------------|:-----------:|:-------:|
 |Input             |Grayscale image             |32 x 32 x 1  |0        |
-|Convolution 3 x 3 |1 x 1 stride, valid padding |30 x 30 x 64 |576      |
+|Convolution 3 x 3 |1 x 1 stride, valid padding |30 x 30 x 64 |640      |
 |RELU              |Relu Activation             |30 x 30 x 64 |0        |
-|Convolution 3 x 3 |1 x 1 stride, valid padding |28 x 28 x 64 |36864    |
+|Convolution 3 x 3 |1 x 1 stride, valid padding |28 x 28 x 64 |40960    |
 |RELU              |Relu Activation             |28 x 28 x 64 |0        |
 |Max pooling 2 x 2 |2 x 2 stride                |14 x 14 x 64 |0        |
-|Convolution 3 x 3 |1 x 1 stride, valid padding |12 x 12 x 128|73728    |
+|Convolution 3 x 3 |1 x 1 stride, valid padding |12 x 12 x 128|81920    |
 |RELU              |Relu Activation             |12 x 12 x 128|0        |
 |Max pooling 2 x 2 |2 x 2 stride                |6 x 6 x 128  |0        |
 |Flatten           |Flatten                     |4608         |0        |
@@ -205,31 +206,58 @@ My model consists of the following layers:
 |Dense             |Dense network               |43           |22059    |
 |Softmax           |Softmax                     |43           |0        |
  
-#### 3. Training the model
+### 3. Model Training
 
-The model is trained using Adam Optimizer with the following parameters.
+The model was trained using Adam Optimizer with the following parameters. The training is implemented in `Traffic_Sign_Classifier.ipynb Cell [18] - [23]`.
 |Item            |Value|
 |:---------------|:---:|
 |Batch size      |512  |
-|Number of epochs|15   |
+|Number of epochs|8    |
 |Learning rate   |0.001|
 
-#### 4. The approach for finding hte solution and getting high accuracy of the validation set.
+### 4. Solution Approach
 
-The final model results are:
+The final model results were:
 
 |Item                       |Value   |
 |:--------------------------|:------:|
-|Accuracy of training set   |99.759 %|
-|Accuracy of validation set |98.413 %|
-|Accuracy of test set       |97.348 %|
+|Accuracy of training set   |99.655 %|
+|Accuracy of validation set |98.481 %|
+|Accuracy of test set       |95.653 %|
 
-All of them are over 97 %.
+All of them were over 95 %.
 
-The following figure show the accuracy against the epochs.
+The following figure shows the accuracy against the epochs.
 
 ![model_accuracy]
 
+The code in `Traffic_Sign_Classifier.ipynb Cell [24] - [27]` helps to show the recall, precision, and wrong prediction for the training set, the validation set, and the test set respectively.
+
+The following figure shows the recall and precision for the training set.
+
+![recall_precision_train]
+
+Both the recall and the precision were very high (over 97 %) for the training set.
+
+The following figure shows the recall and precision for the validation set.
+
+![recall_precision_valid]
+
+The recalls for the classes **Double curve** and **Pedestrians** were below 80 %.
+The precisions for the classes **Slippery road** and **Pedestrians** were below 90 %.
+Overall, the recall and the precision were still quite high.
+
+The following figure shows the recall and precision for the test set.
+
+![recall_precision_test]
+
+The recall and the precision for some classes were not good.
+The recalls for the classes **Double curve**, **Bumpy road**, **Pedestrians**, and **Beware of ice/snows** were below 80 %. The recall for the class **Pedestrians** was only 56.667 % while the recall for the class **Beware of ice/snows** was only 68.000 %.
+The precisions for the classes **Road narrows on the right**, **Pedestrians**, **Bicycles crossing**, **Beware of ice/snows**, and **Roundabout mandatory** were below 80 %.
+The precision for the class **Pedestrians** was 56.494 %.
+The precision for the class **Bicycles crossing** was 61.818 %.
+The precision for the class **Beware of ice/snows** was 68.696 %.
+The precision for the class **Roundabout mandatory** was 70.345 %
 
 The first architecture that was tried is LeNet as its function is very similar. LeNet structure is quite simple and used to predict 10 different digits from grayscale image while our application is to predict 43 different traffic signs from color images. LeNet consists of consists of some convolution layers hiwch work well for image becuase of the weight sharing for different part of the image.
 
@@ -237,34 +265,34 @@ However, when the LeNet is used without balancing the data set for different cla
 
 To overcome the over-fitting and minimize the gap between the accuracies of the training set and the validation set, image augmentation is performed. At the same time, data is generated to balancing the data set for different classes. In addition, dropout layer is used to prevent the deeper and wider network become over-fitting.
 
-The learning rate is chosen to be 0.001. I have tried different learning rate 0.0001, 0.001, 0.01, and 0.1. Learning rate larger than 0.001 cannot achieve high accuracy while learning rate smaller than 0.001 made the learning too slow.
+Originally, I think color may help the network to recognize the image, so I design the network to accept 3 channel color image as input.t However, it is found out that it can achieve higher accuracy if the network accept the grayscale image as input.
 
+The learning rate is chosen to be 0.001. I have tried different learning rate 0.0001, 0.001, 0.01, and 0.1. Learning rate larger than 0.001 cannot achieve high accuracy while learning rate smaller than 0.001 made the learning too slow.
 ![learning_rate]
 
-The epoch is set to 15 as I found that the accuracies of the training set and the validation set cannot increase after around 10 - 15.
+The epoch is set to 8 as I found that the accuracies of the training set and the validation set cannot increase after around 8 epoch.
 
-### Test the model on new images
+### Test a Model on New Images
 
-#### 1. Test the model on 10 pictures of German traffic signs either found from the web or taken by myself.
+#### 1. Acquiring New Images
 
+Test the model on 10 pictures of German traffic signs either found from the web or taken by myself. It is implemented in `Traffic_Sign_Classifier.ipynb Cell [28]`.
 The following table shows the 10 German traffic signs tested:
 
-|File Name|Image            |Label                    |
-|:--------|:---------------:|:------------------------|
-|01.jpg   |![other_image_01]|Road narrows on the right|
-|02.jpg   |![other_image_02]|Speed limit (50km/h)     |
-|03.jpg   |![other_image_03]|No entry                 |
-|04.jpg   |![other_image_04]|Road work                |
-|05.jpg   |![other_image_05]|Go straight or right     |
-|06.jpg   |![other_image_06]|Keep right               |
-|07.jpg   |![other_image_07]|Yield                    |
-|08.jpg   |![other_image_08]|Double curve             |
-|09.jpg   |![other_image_09]|No entry                 |
-|10.jpg   |![other_image_10]|No vehicles              |
+|File Name|Image            |Label                    |Description|
+|:--------|:---------------:|:------------------------|:----------|
+|01.jpg   |![other_image_01]|Road narrows on the right|It should be easy to recognize.|
+|02.jpg   |![other_image_02]|Speed limit (50km/h)     |It should be easy to recognize.|
+|03.jpg   |![other_image_03]|No entry                 |It may be difficult for the model to recognize as the contrast of image is not good.|
+|04.jpg   |![other_image_04]|Road work                |It may be difficult for the model to recognize as there are some distortions.|
+|05.jpg   |![other_image_05]|Go straight or right     |It may be difficult for the model to recognize as the image is distorted.|
+|06.jpg   |![other_image_06]|Keep right               |The image is captured from google map street view. The quality may be not good for the model to recognize.|
+|07.jpg   |![other_image_07]|Yield                    |It may be difficult for the model to recognize as the image is not taken from the front side.|
+|08.jpg   |![other_image_08]|Double curve             |The image is taken at Hong Kong, I tried to compare it with German traffic sign. There are some minor differences. It may be difficult for the model to recognize
+|09.jpg   |![other_image_09]|No entry                 |It should be easy to recognize.|
+|10.jpg   |![other_image_10]|No vehicles              |It may be difficult for the model to recognize as the image is not taken from the front side.|
 
-
-
-#### 2. Discussion of the performance of the model on new images.
+#### 2. Performance on New Images
 
 Here are the results of the prediction:
 
@@ -281,138 +309,149 @@ Here are the results of the prediction:
 |09.jpg   |![other_image_09]|No entry                 |No entry                 |
 |10.jpg   |![other_image_10]|No vehicles              |No vehicles              |
 
-The model was able to correctly guess 10 of the 10 traffic signs, which gives an accuracy of 100 %. This is similar to the accuracies of the validation set and the test set.
+The model was able to correctly guess 10 of the 10 traffic signs, which gives an accuracy of 100 %. This is similar to the accuracies of the validation set and the test set. It is implemented in `Traffic_Sign_Classifier.ipynb Cell [29] - [30]`.
 
-#### 3. Top 5 softmax probabilities for each image .
+#### 3. Model Certainty - Softmax Probabilities
 
-For the first image, the model is relatively sure that this is a stop sign (probability of 0.6), and the image does contain a stop sign. The top five soft max probabilities were
+For each of the new images, compute the model's softmax probabilites to show the certainty of the model's predictions. It is implemented in `Traffic_Sign_Classifier.ipynb Cell [31]`. Except the 8th image (08.jpg), all of them predict correctly with very high certainty.
 
 Top 5 Probablities for 01.jpg
-
-Road narrows on the right (Class 24)
-					96.552%
-General caution (Class 18)
-					3.448%
-Pedestrians (Class 27)
-					0.000%
-Double curve (Class 21)
-					0.000%
-Children crossing (Class 28)
-					0.000%
-
+|Class|Probability|
+|:----|:---------:|
+|Road narrows on the right (Class 24)|99.971 %|
+|General caution (Class 18)|0.029 %|
+|Pedestrians (Class 27)|0.000 %|
+|Traffic signals (Class 26)|0.000 %|
+|Children crossing (Class 28)|0.000 %|
 ![top5_01]
+My model predicted that it is **Road narrows on the right** with probability 99.971 %.
+
+---
 
 Top 5 Probablities for 02.jpg
-
 |Class|Probability|
 |:----|:---------:|
-|Speed limit (50km/h) (Class 2)|99.992 %|
-|Speed limit (60km/h) (Class 3)|0.008 %|
-|Speed limit (30km/h) (Class 1)|0.000 %|
-|Speed limit (80km/h) (Class 5)|0.000 %|
-|No passing for vehicles over 3.5 metric tons (Class 10)|0.000 %|
-
+|Speed limit (50km/h) (Class 2)|96.483 %|
+|Speed limit (60km/h) (Class 3)|1.760 %|
+|Speed limit (80km/h) (Class 5)|1.032 %|
+|No passing for vehicles over 3.5 metric tons (Class 10)|0.725 %|
+|No passing (Class 9)|0.000 %|
 ![top5_02]
+My model predicted that it is **Speed limit (50km/h)** with probability 6.483 %.
+
+---
 
 Top 5 Probablities for 03.jpg
-
 |Class|Probability|
 |:----|:---------:|
-|No entry (Class 17)|99.912 %|
-|Stop (Class 14)|0.085 %|
-|Keep right (Class 38)|0.002 %|
-|Priority road (Class 12)|0.000 %|
-|No passing (Class 9)|0.000 %|
-
+|No entry (Class 17)|97.987 %|
+|Stop (Class 14)|1.907 %|
+|Priority road (Class 12)|0.088 %|
+|Keep right (Class 38)|0.011 %|
+|No passing (Class 9)|0.002 %|
 ![top5_03]
+My model predicted that it is **No entry** with probability 97.987 %.
+
+---
 
 Top 5 Probablities for 04.jpg
-
 |Class|Probability|
 |:----|:---------:|
-|Road work (Class 25)|99.620 %|
-|Children crossing (Class 28)|0.379 %|
-|Bicycles crossing (Class 29)|0.001 %|
-|Beware of ice/snow (Class 30)|0.000 %|
-|Road narrows on the right (Class 24)|0.000 %|
-
+|Road work (Class 25)|89.514 %|
+|Road narrows on the right (Class 24)|7.036 %|
+|Beware of ice/snow (Class 30)|2.164 %|
+|Children crossing (Class 28)|1.127 %|
+|Pedestrians (Class 27)|0.129 %|
 ![top5_04]
+My model predicted that it is **Road work** with probability 89.514 %.
+
+---
 
 Top 5 Probablities for 05.jpg
-
 |Class|Probability|
 |:----|:---------:|
-|Go straight or right (Class 36)|99.992 %|
-|Ahead only (Class 35)|0.006 %|
-|Turn right ahead (Class 33)|0.002 %|
+|Go straight or right (Class 36)|99.999 %|
+|Ahead only (Class 35)|0.001 %|
+|Speed limit (60km/h) (Class 3)|0.000 %|
+|Turn right ahead (Class 33)|0.000 %|
 |No passing for vehicles over 3.5 metric tons (Class 10)|0.000 %|
-|Stop (Class 14)|0.000 %|
-
 ![top5_05]
+My model predicted that it is **Go straight or right** with probability 99.999 %.
+
+---
 
 Top 5 Probablities for 06.jpg
-
 |Class|Probability|
 |:----|:---------:|
 |Keep right (Class 38)|100.000 %|
-|No passing for vehicles over 3.5 metric tons (Class 10)|0.000 %|
 |Turn left ahead (Class 34)|0.000 %|
 |Priority road (Class 12)|0.000 %|
-|Stop (Class 14)|0.000 %|
-
+|No passing for vehicles over 3.5 metric tons (Class 10)|0.000 %|
+|Roundabout mandatory (Class 40)|0.000 %|
 ![top5_06]
+My model predicted that it is **Keep right** with probability 100.000  %.
+
+---
 
 Top 5 Probablities for 07.jpg
-
 |Class|Probability|
 |:----|:---------:|
 |Yield (Class 13)|100.000 %|
-|Priority road (Class 12)|0.000 %|
-|Stop (Class 14)|0.000 %|
 |Speed limit (30km/h) (Class 1)|0.000 %|
 |No vehicles (Class 15)|0.000 %|
-
+|Stop (Class 14)|0.000 %|
+|Speed limit (60km/h) (Class 3)|0.000 %|
 ![top5_07]
+My model predicted that it is **Yield** with probability 100.000  %.
+
+---
 
 Top 5 Probablities for 08.jpg
-
 |Class|Probability|
 |:----|:---------:|
-|Double curve (Class 21)|82.911 %|
-|Children crossing (Class 28)|16.958 %|
-|Beware of ice/snow (Class 30)|0.116 %|
-|Right-of-way at the next intersection (Class 11)|0.013 %|
-|Wild animals crossing (Class 31)|0.001 %|
-
+|Double curve (Class 21)|48.255 %|
+|Right-of-way at the next intersection (Class 11)|46.314 %|
+|Beware of ice/snow (Class 30)|3.583 %|
+|Road narrows on the right (Class 24)|1.634 %|
+|WGeneral caution (Class 18)|0.153 %|
 ![top5_08]
+My model predicted that it is **Double curve** with probability 48.255 % and it is "Right-of-way at the next intersection" with probability 46.319 %. It seems that my model may mix up these 2 traffic signs.
+
+---
 
 Top 5 Probablities for 09.jpg
-
 |Class|Probability|
 |:----|:---------:|
-|No entry (Class 17)|99.957 %|
-|Stop (Class 14)|0.043 %|
-|Turn right ahead (Class 33)|0.000 %|
-|Roundabout mandatory (Class 40)|0.000 %|
-|Yield (Class 13)|0.000 %|
-
+|No entry (Class 17)|99.998 %|
+|Stop (Class 14)|0.001 %|
+|End of no passing by vehicles over 3.5 metric tons (Class 42)|0.000 %|
+|Turn left ahead (Class 34)|0.000 %|
+|Priority road (Class 12)|0.000 %|
 ![top5_09]
+My model predicted that it is **No entry** with probability 99.998 %.
+
+---
 
 Top 5 Probablities for 10.JPG
-
 |Class|Probability|
 |:----|:---------:|
-|No vehicles (Class 15)|100.000 %|
-|No passing (Class 9)|0.000 %|
-|Speed limit (70km/h) (Class 4)|0.000 %|
-|Keep right (Class 38)|0.000 %|
+|No vehicles (Class 15)|99.999 %|
+|Keep right (Class 38)|0.001 %|
 |Speed limit (50km/h) (Class 2)|0.000 %|
-
+|Speed limit (30km/h) (Class 1)|0.000 %|
+|Priority road (Class 12)|0.000 %|
 ![top5_10]
+My model predicted that it is **No vehicles** with probability 99.999 %.
 
-#### 4. Visualizing the Neural Network
+---
 
+#### 4. Visualize layers of the neural network
 
+While neural networks can be a great learning device they are often referred to as a black box. We can understand what the weights of a neural network look like better by plotting their feature maps. The code is located in `Traffic_Sign_Classifier.ipynb Cell [32] - [35]`.
+
+1. Compute the response of the first convolution layer to the first test image (01.jpg).
 ![visualization_layer_1]
+2. Compute the response of the second convolution layer to the first test image (01.jpg).
 ![visualization_layer_2]
+3. Compute the response of the thrid convolution layer to the first test image (01.jpg).
 ![visualization_layer_3]
